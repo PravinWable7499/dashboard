@@ -288,14 +288,23 @@ function renderDetails(list){
     let html = "";
 
     list.forEach(d=>{
-        html += `
+       /* html += `
         <div class="company-row">
             <span class="company-name">${d.name}</span>
             <button class="view-btn" onclick="viewDetails(${data.indexOf(d)})">
                 View
             </button>
         </div>`;
-    });
+    }); */
+
+        html += `
+        <div class="company-row">
+        <div class="company-name">${d.name}</div>
+        <div class="company-phone">
+        ${d.mobile_no ? d.mobile_no : "-"}
+        </div>
+    </div>`;
+ });
 
     details.innerHTML = html;
 }
@@ -507,7 +516,7 @@ function prevItem(){
     if(index > 0){
         viewDetails(data.indexOf(list[index - 1]));
     }
-}
+} 
 
 function runSearch(shouldScroll = false){
 
