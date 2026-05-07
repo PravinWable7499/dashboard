@@ -276,7 +276,7 @@ function showAreaDetails(area){
 
 function renderDetails(list){
 
-    currentList = list;   // ⭐ SAVE LIST
+    currentList = list;
 
     let details = document.getElementById("details");
 
@@ -297,14 +297,50 @@ function renderDetails(list){
         </div>`;
     }); */
 
+        let rawNumber = d.mobile_no ? String(d.mobile_no) : "";
+        let firstNumber = rawNumber.split("/")[0].split(",")[0].trim();
+        let cleanNumber = firstNumber.replace(/\D/g, "");
+
+        if(cleanNumber.length > 10 && cleanNumber.startsWith("91")){
+            cleanNumber = cleanNumber.slice(-10);
+        }
+
         html += `
-        <div class="company-row">
-        <div class="company-name">${d.name}</div>
+<div class="company-row">
+
+    <div class="company-name">${d.name || "-"}</div>
+
+    <div class="company-right">
+
         <div class="company-phone">
-        ${d.mobile_no ? d.mobile_no : "-"}
+            ${rawNumber || "-"}
         </div>
-    </div>`;
- });
+
+        ${
+            cleanNumber.length === 10
+            ? `
+            <!-- CALL BUTTON -->
+            <a href="tel:${cleanNumber}" 
+            class="call-btn"
+            onclick="handleCall(event, '${cleanNumber}')">
+            <i class="fa-solid fa-phone"></i>
+            </a>
+
+            <!-- WHATSAPP BUTTON -->
+            <a href="https://wa.me/91${cleanNumber}?text=Hello%20I%20got%20your%20contact"
+               target="_blank"
+               class="whatsapp-btn"
+               onclick="event.stopPropagation()">
+               <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            `
+            : ""
+        }
+
+    </div>
+
+</div>`;
+    });
 
     details.innerHTML = html;
 }
@@ -548,5 +584,15 @@ function runSearch(shouldScroll = false){
     // ✅ ONLY SCROLL WHEN REQUIRED
     if(shouldScroll){
         details.scrollIntoView({ behavior: "smooth" });
+    }
+}
+
+function handleCall(e, number){
+
+    let isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if(!isMobile){
+        e.preventDefault();
+        alert("Call option works on mobile 📱. Please use your phone to call: " + number);
     }
 }
