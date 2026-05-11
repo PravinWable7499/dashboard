@@ -306,15 +306,38 @@ function renderDetails(list){
         }
 
         html += `
-<div class="company-row">
+    <div class="company-row" onclick="viewDetails(${data.indexOf(d)})">
 
     <div class="company-name">${d.name || "-"}</div>
 
     <div class="company-right">
 
-        <div class="company-phone">
-            ${rawNumber || "-"}
-        </div>
+    <div class="company-phone">
+
+    ${
+        rawNumber
+        ? rawNumber
+            .split(/[\/,]/)
+            .map(num => {
+                let clean = num.replace(/\D/g, "").trim();
+
+                if(clean.length > 10 && clean.startsWith("91")){
+                    clean = clean.slice(-10);
+                }
+
+                return `
+                    <a href="https://wa.me/91${clean}?text=Hello%20I%20got%20your%20contact"
+                       target="_blank"
+                       class="phone-link">
+                       ${num.trim()}
+                    </a>
+                `;
+            })
+            .join(" / ")
+        : "-"
+    }
+
+</div>
 
         ${
             cleanNumber.length === 10
@@ -595,4 +618,129 @@ function handleCall(e, number){
         e.preventDefault();
         alert("Call option works on mobile 📱. Please use your phone to call: " + number);
     }
+}
+
+function openBulkMessageBox(){
+    document.getElementById("bulkMsgBox").style.display = "flex";
+}
+
+function closeBulkMessageBox(){
+    document.getElementById("bulkMsgBox").style.display = "none";
+}
+
+function extractNumbers(raw){
+    if(!raw) return [];
+
+    return String(raw)
+        .split(/[\/,]/)
+        .map(n => n.replace(/\D/g, "").trim())
+        .filter(n => n.length >= 10)
+        .map(n => {
+            if(n.length > 10 && n.startsWith("91")){
+                return n.slice(-10);
+            }
+            return n.slice(-10);
+        });
+}
+
+function sendBulkWhatsApp(){
+    let msg = document.getElementById("bulkMessage").value.trim();
+
+    if(!msg){
+        alert("Please type message first");
+        return;
+    }
+
+    let numbers = [];
+
+    data.forEach(d => {
+        numbers.push(...extractNumbers(d.mobile_no));
+    });
+
+    numbers = [...new Set(numbers)];
+
+    if(numbers.length === 0){
+        alert("No numbers found");
+        return;
+    }
+
+    numbers.forEach((num, index) => {
+        setTimeout(() => {
+            window.open(
+                `https://wa.me/91${num}?text=${encodeURIComponent(msg)}`,
+                "_blank"
+            );
+        }, index * 1000);
+    });
+
+    closeBulkMessageBox();
+}
+
+function toggleExportMenu(){
+    let menu = document.getElementById("exportMenu");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+function exportCSV(){
+
+    let rows = [["Name", "Phone Number"]];
+
+    currentList.forEach(d => {
+        rows.push([
+            d.name || "",
+            d.mobile_no || ""
+        ]);
+    });
+
+    let csvContent = rows.map(row =>
+        row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(",")
+    ).join("\n");
+
+    let blob = new Blob([csvContent], { type:"text/csv;charset=utf-8;" });
+    let link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+    link.download = "Institute_Details.csv";
+    link.click();
+
+    document.getElementById("exportMenu").style.display = "none";
+}
+
+function exportWebsiteStylePDF(){
+
+    const detailsBox = document.querySelector(".details-box");
+
+    html2canvas(detailsBox, {
+        scale: 2,
+        useCORS: true
+    }).then(canvas => {
+
+        const imgData = canvas.toDataURL("image/png");
+        const { jsPDF } = window.jspdf;
+
+        const pdf = new jsPDF("p", "mm", "a4");
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+
+        const imgWidth = pageWidth - 20;
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+
+        let heightLeft = imgHeight;
+        let position = 10;
+
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while(heightLeft > 0){
+            position = heightLeft - imgHeight + 10;
+            pdf.addPage();
+            pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+
+        pdf.save("Institute_Details.pdf");
+
+        document.getElementById("exportMenu").style.display = "none";
+    });
 }

@@ -11,6 +11,7 @@
 
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
 </head>
 
 <body>
@@ -81,7 +82,13 @@
           </span>
         </a>
       </li>
-
+      
+      <li>
+        <a class="sidebar-link bulk-whatsapp-btn" href="#" onclick="openBulkMessageBox()">
+          <i class="fa-brands fa-whatsapp fa-2x icon-sidebar"></i>
+          <span>Bulk WhatsApp</span>
+        </a>
+      </li>
     </ul>
 
   </aside>
@@ -332,19 +339,70 @@
 
     <!-- DETAILS -->
     <div class="details-box full-width-details my-5">
-      <h3>Institute Details</h3>
+      <h3>Details</h3>
 
       <div id="details">
         <p>Select institute to view details</p>
       </div>
     </div>
 
+    <div class="export-box">
+
+    <button class="export-main-btn">
+        Export <i class="fa-solid fa-chevron-up"></i>
+    </button>
+
+    <div class="export-menu">
+
+        <button onclick="exportWebsiteStylePDF()">
+            <i class="fa-solid fa-file-pdf"></i>
+            Download PDF
+        </button>
+
+        <button onclick="exportCSV()">
+            <i class="fa-solid fa-file-csv"></i>
+            Download CSV
+        </button>
+
+    </div>
+
+</div>
+
+    <!-- BULK WHATSAPP POPUP -->
+    <div id="bulkMsgBox" class="bulk-msg-overlay">
+
+    <div class="bulk-msg-card">
+
+        <h3>Send WhatsApp Message</h3>
+
+        <textarea id="bulkMessage"
+                  placeholder="Type your message here..."></textarea>
+
+        <div class="bulk-actions">
+
+            <button class="send-btn"
+                    onclick="sendBulkWhatsApp()">
+                Send
+            </button>
+
+            <button class="cancel-btn"
+                    onclick="closeBulkMessageBox()">
+                Cancel
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
   </main>
 
 </div>
 
 <script src="/scripts.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 </body>
 
